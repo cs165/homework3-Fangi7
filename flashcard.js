@@ -6,18 +6,6 @@
 // - Adding methods
 // - Adding additional fields
 
-class Flashcard {
-  constructor(containerElement, frontText, backText) {
-    this.containerElement = containerElement;
-
-    this._flipCard = this._flipCard.bind(this);
-
-    this.flashcardElement = this._createFlashcardDOM(frontText, backText);
-    this.containerElement.append(this.flashcardElement);
-
-    this.flashcardElement.addEventListener('pointerup', this._flipCard);
-  }
-
   // Creates the DOM object representing a flashcard with the given
   // |frontText| and |backText| strings to display on the front and
   // back of the card. Returns a reference to root of this DOM
@@ -31,6 +19,35 @@ class Flashcard {
   // </div>
   // and returns a reference to the root of that snippet, i.e. the
   // <div class="flashcard-box">
+class Flashcard {
+  constructor(containerElement, frontText, backText, judgeAns, correctCnt, incorrectCnt, getNextCard, nowCardNum, cardArr) {
+
+    let originX = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let startMove = false;
+    this.containerElement = containerElement;
+    this.frontText = frontText;
+    this.backText = backText;
+    this.nowCardNum = nowCardNum;
+    this.judgeAns = judgeAns;
+    this.getNextCard = getNextCard;
+    this.correctCnt = correctCnt;
+    this.incorrectCnt = incorrectCnt;
+    this.cardArr = cardArr;
+
+    this.flashcardElement = this._createFlashcardDOM(frontText, backText);
+    this._flipCardStart = this._flipCardStart.bind(this);
+    this._flipCardEnd = this._flipCardEnd.bind(this);
+    this._flipCardMove = this._flipCardMove.bind(this);
+
+    this.containerElement.append(this.flashcardElement);
+    console.log(this.flashcardElement);
+    this.flashcardElement.addEventListener('pointerdown', this._flipCardStart);
+    this.flashcardElement.addEventListener('pointerup', this._flipCardEnd);
+    this.flashcardElement.addEventListener('pointermove', this._flipCardMove);
+  }
+
   _createFlashcardDOM(frontText, backText) {
     const cardContainer = document.createElement('div');
     cardContainer.classList.add('flashcard-box');
@@ -50,8 +67,65 @@ class Flashcard {
     cardContainer.appendChild(definitionSide);
     return cardContainer;
   }
+  _flipCardStart(event) {
+    this.startMove = true;
+    this.originX = event.clientX;
+    this.originY = event.clientY;
+  }
+  _flipCardEnd(event) {
+    this.startMove = false;
+    if((event.clientX - this.originX) > 150 ){
+        this.judgeAns('right');
+        console.log(this.cardArr);
+        this.cardArr[this.nowCardNum][2] = 'right';
+        this.flashcardElement.style.display = 'none';
+        this.getNextCard(this.nowCardNum+1);
 
-  _flipCard(event) {
-    this.flashcardElement.classList.toggle('show-word');
+      }
+    else if((this.originX - event.clientX) > 150 ){
+        this.judgeAns('wrong');
+        console.log(this.nowCardNum+1);
+        this.cardArr[this.nowCardNum][2] = 'wrong';
+        this.flashcardElement.style.display = 'none';
+        this.getNextCard(this.nowCardNum+1);
+      }
+    else {
+        this.flashcardElement.classList.toggle('show-word');
+    }
+    document.body.style.backgroundColor = "#d0e6df";
+    this.flashcardElement.style.transform = 'translateX(0px) translateY(0px) rotate(0deg)';
+
+  }
+  _flipCardMove(event) {
+    if(this.startMove == false) return;
+      event.preventDefault();
+      event.target.setPointerCapture(event.pointerId);
+      //  console.log(event.pointerId);
+        //this.flashcardElement.style.transition = '';
+        this.flashcardElement.style.transform = 'translateX('+(event.clientX-this.originX)+'px)'+
+        'translateY('+(event.clientY-this.originY)+'px) rotate('+(event.clientX-this.originX)*0.2+'deg)';
+        if ((event.clientX - this.originX) > 150){
+          document.body.style.backgroundColor = "#97b7b7";
+          this.correctCntSpan = document.querySelector('.correct');
+          this.incorrectCntSpan = document.querySelector('.incorrect');
+          this.correctCntSpan.textContent = this.correctCnt + 1;
+          this.incorrectCntSpan.textContent = this.incorrectCnt;
+          console.log(this.correctCntSpan.textContent);
+        }
+        else if ((this.originX - event.clientX) > 150) {
+          document.body.style.backgroundColor = "#97b7b7";
+          this.correctCntSpan = document.querySelector('.correct');
+          this.incorrectCntSpan = document.querySelector('.incorrect');
+          this.incorrectCntSpan.textContent = this.incorrectCnt + 1;
+          this.correctCntSpan.textContent = this.correctCnt;
+          console.log(this.incorrectCntSpan.textContent);
+        }
+        else {
+          document.body.style.backgroundColor = "#d0e6df";
+        }
+
+  }
+  hide(){
+      this.containerElement.classList.add('inactive');
   }
 }
