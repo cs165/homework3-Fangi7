@@ -74,6 +74,7 @@ class Flashcard {
   }
   _flipCardEnd(event) {
     this.startMove = false;
+    this.flashcardElement.style.transition = '.6s';
     if((event.clientX - this.originX) > 150 ){
         this.judgeAns('right');
         console.log(this.cardArr);
@@ -89,7 +90,7 @@ class Flashcard {
         this.flashcardElement.style.display = 'none';
         this.getNextCard(this.nowCardNum+1);
       }
-    else {
+    else if((this.originX == event.clientX)&&(this.originY == event.clientY)){
         this.flashcardElement.classList.toggle('show-word');
     }
     document.body.style.backgroundColor = "#d0e6df";
@@ -100,6 +101,7 @@ class Flashcard {
     if(this.startMove == false) return;
       event.preventDefault();
       event.target.setPointerCapture(event.pointerId);
+      this.flashcardElement.style.transition = '0s';
       //  console.log(event.pointerId);
         //this.flashcardElement.style.transition = '';
         this.flashcardElement.style.transform = 'translateX('+(event.clientX-this.originX)+'px)'+
@@ -122,6 +124,10 @@ class Flashcard {
         }
         else {
           document.body.style.backgroundColor = "#d0e6df";
+          this.correctCntSpan = document.querySelector('.correct');
+          this.incorrectCntSpan = document.querySelector('.incorrect');
+          this.correctCntSpan.textContent = this.correctCnt;
+          this.incorrectCntSpan.textContent = this.incorrectCnt;
         }
 
   }
