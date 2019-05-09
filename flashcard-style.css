@@ -1,3 +1,17 @@
 /*
 TODO(you): Write any additional styles you need here.
 */
+/*
+TODO(you): Write any additional styles you need here.
+*/
+.flashcard-box .word{
+    animation: cardgrow 0.5s;
+}
+@keyframes cardgrow{
+  from{
+    margin-top: 100%;
+  }
+  to{
+    margin-top: 0%;
+  }
+}
