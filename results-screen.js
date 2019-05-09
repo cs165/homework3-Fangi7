@@ -49,7 +49,7 @@ class ResultsScreen {
     console.log(numberCorrect);
     this.containerElement.classList.remove('inactive');
     console.log(this.correctCntSpan[1]);
-    this.percentSpan.textContent = (numberCorrect/(numberCorrect+numberWrong))*100;
+    this.percentSpan.textContent = Math.round((numberCorrect/(numberCorrect+numberWrong))*100);
     this.correctCntSpan[1].textContent = numberCorrect;
     this.incorrectCntSpan[1].textContent = numberWrong;
     if(this.percentSpan.textContent == 100){
